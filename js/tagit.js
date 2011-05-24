@@ -47,7 +47,8 @@
             triggerKeys: ['enter', 'space', 'comma', 'tab'],
             initialTags: [],
             minLength:   1,
-            select:      false
+            select:      false,
+            constrain:   false
 
         },
 
@@ -175,7 +176,7 @@
             this.input.val("");
             value = value.replace(/,+$/, "");
             value = value.trim();
-            if (value == "" || this._exists(value))
+            if (value == "" || this._exists(value) || (this.options.constrain && !this._validTag(value)))
                 return false;
 
             var tag = "";
@@ -191,6 +192,13 @@
 
         _exists: function(value) {
             if (this.tagsArray.length == 0 || $.inArray(value, this.tagsArray) == -1)
+                return false;
+            return true;
+        }
+        ,
+
+        _validTag: function(value) {
+            if (this.options.initialTags.length == 0 || $.inArray(value, this.options.initialTags) == -1)
                 return false;
             return true;
         }
