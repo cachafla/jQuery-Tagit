@@ -198,7 +198,7 @@
         ,
 
         _validTag: function(value) {
-            if (this.options.initialTags.length == 0 || $.inArray(value, this.options.initialTags) == -1)
+            if (this.options.tagSource.length == 0 || $.inArray(value, this.options.tagSource) == -1)
                 return false;
             return true;
         }
