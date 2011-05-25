@@ -48,7 +48,9 @@
             initialTags: [],
             minLength:   1,
             select:      false,
-            constrain:   false
+            constrain:   false,
+            onAdd:       null,
+            onRemove:    null
 
         },
 
@@ -83,10 +85,14 @@
             //setup click handler
             $(this.element).click(function(e) {
                 if ($(e.target).hasClass('tagit-close')) {
+                    var text = $(e.target).parent().text();
+                    var value = self._popTag(text.substr(0, text.length - 1));
+
+                    if (self.options.onRemove)
+                        $(e.target).parent().trigger(self.options.onRemove, value);
+
                     // Removes a tag when the little 'x' is clicked.
                     $(e.target).parent().remove();
-                    var text = $(e.target).parent().text();
-                    self._popTag(text.substr(0, text.length - 1));
                 }
                 else {
                     self.input.focus();
@@ -129,7 +135,6 @@
                 this.timer = setTimeout(function(){
                     self._addTag(v);
                 }, 50000);
-                console.log(this.timer);
 
                 $(this).val('');
                 return false;
@@ -167,8 +172,11 @@
                 var index = ($.inArray(text, this.tagsArray) == -1 ? this.tagsArray.length - 1 : $.inArray(text, this.tagsArray));
                 this.tagsArray.splice(index, 1);
             }
+
             if (this.options.select)
                 this._popSelect(text);
+
+            return text;
         }
         ,
 
@@ -181,11 +189,16 @@
 
             var tag = "";
             tag = '<li class="tagit-choice">' + value + '<a class="tagit-close">x</a></li>';
-            $(tag).insertBefore(this.input.parent());
+            var el = $(tag).insertBefore(this.input.parent());
             this.input.val("");
             this.tagsArray.push(value);
+
+            if (this.options.onAdd)
+                el.trigger(this.options.onAdd, value);
+
             if (this.options.select)
                 this._addSelect(value);
+
             return true;
         }
         ,
@@ -226,8 +239,13 @@
             if (this.input.val() == "") {
                 // When backspace is pressed, the last tag is deleted.
                 if (this.lastKey == this._keys.backspace) {
-                    this._popTag();
+                    var value = this._popTag();
+
+                    if (this.options.onRemove)
+                        li.trigger(this.options.onRemove, value);
+
                     li.remove();
+
                     this.lastKey = null;
                 } else {
                     li.addClass('selected');
